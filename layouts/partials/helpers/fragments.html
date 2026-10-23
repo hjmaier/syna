@@ -158,7 +158,7 @@
   {{- $rel_lang_file_name := printf "%s%s.%s.md" .resource.File.Dir .resource.File.TranslationBaseName $lang -}}
   {{- $rel_lang_file := where ($page_scratch.Get "fragments_paths") ".path" "eq" $rel_lang_file_name -}}
   {{- $is_resource_single_language := eq (len $rel_lang_file) 0 -}}
-  {{- $is_resource_same_language := eq .resource.File.Lang $lang -}}
+  {{- $is_resource_same_language := eq .resource.Language.Lang $lang -}}
   {{- if and (eq $lang $default_lang) (eq (len (findRE "\\.\\w{2}\\.md" .path)) 0) -}}
     {{- $page_scratch.Add "fragments" .resource -}}
   {{- else if and (ne $lang $default_lang) (or $is_resource_same_language $is_resource_single_language) -}}
