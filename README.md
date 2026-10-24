@@ -12,6 +12,9 @@ Create your next website with Syna.
 ![Syna Theme screenshot](https://raw.githubusercontent.com/okkur/syna/master/images/screenshot.png)
 
 ## Using Syna Theme
+This fork's current build prerequisites and Sass workflow are described in
+[BUILDING.md](BUILDING.md).
+
 Start exploring [Syna](https://syna.okkur.org/demo).
 
 Or get started creating your own page with our [starter repo](https://syna.okkur.org/start).

@@ -1,3 +1,5 @@
+@use "bootstrap/mixins/breakpoints";
+
 .header-image {
   background-repeat: no-repeat;
   background-attachment: scroll;
@@ -30,7 +32,7 @@ nav[role="navigation"] {
   }
 }
 
-@include media-breakpoint-down(md) {
+@include breakpoints.media-breakpoint-down(md) {
   .search-results-container {
     &.show {
       display: none;
@@ -38,7 +40,7 @@ nav[role="navigation"] {
   }
 }
 
-@include media-breakpoint-down(md) {
+@include breakpoints.media-breakpoint-down(md) {
   .navbar-collapse {
     max-height: 0px;
     transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);

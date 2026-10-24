@@ -59,6 +59,7 @@ class HugoCase(unittest.TestCase):
         }, indent=2))
         if expected == 0:
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertNotIn("WARN", result.stdout + result.stderr)
         else:
             self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
@@ -69,7 +70,7 @@ class FragmentLanguageTests(HugoCase):
         self.write("config.toml", '''baseURL = "https://example.invalid/"
 defaultContentLanguage = "de"
 defaultContentLanguageInSubdir = true
-disableKinds = ["RSS", "sitemap", "taxonomy", "term", "taxonomyTerm"]
+disableKinds = ["rss", "sitemap", "taxonomy", "term"]
 [languages.de]
 weight = 1
 [languages.en]
@@ -160,7 +161,7 @@ class FragmentPathTests(FragmentLanguageTests):
 
 class NavigationTests(HugoCase):
     def navigation(self, multilingual):
-        config = 'baseURL = "https://example.invalid/"\ndisableKinds = ["RSS", "sitemap", "taxonomy", "term", "taxonomyTerm"]\n'
+        config = 'baseURL = "https://example.invalid/"\ndisableKinds = ["rss", "sitemap", "taxonomy", "term"]\n'
         if multilingual:
             config += '[languages.de]\nweight = 1\n[languages.en]\nweight = 2\n'
         self.write("config.toml", config)
@@ -185,20 +186,30 @@ class NavigationTests(HugoCase):
 
 
 class CssTests(HugoCase):
-    def css_build(self, development):
-        self.write("config.toml", 'baseURL = "https://example.invalid/"\ndisableKinds = ["RSS", "sitemap", "taxonomy", "term", "taxonomyTerm"]\n')
+    def css_build(self, development, responsive=False):
+        self.write("config.toml", 'baseURL = "https://example.invalid/"\ndisableKinds = ["rss", "sitemap", "taxonomy", "term"]\n')
         for path in ["head.html", "helpers/page-title.html", "extra/grid-css.html"]:
             self.partial(path)
         self.write("layouts/index.html", '{{ partial "head.html" . }}')
         self.write("content/_index.md", "+++\ntitle = 'Synthetic'\n+++\n")
         # Exercise ExecuteAsTemplate and the actual head partial with tiny deterministic assets.
-        self.write("assets/styles/index.scss", '$c: #112233; .synthetic {color: $c;}')
+        scss = '@use "bootstrap/variables" with ($enable-responsive-font-sizes: ' + str(responsive).lower() + ');\n'
+        scss += '@use "bootstrap/vendor/rfs"; .synthetic {color: #112233; @include rfs.font-size(2.5rem);}'
+        self.write("assets/styles/index.scss", scss)
         self.write("assets/scripts/syna-head.js", 'window.synthetic = true;')
-        self.build("--environment", "development" if development else "production", "--minify")
+        self.build("--environment", "development" if development else "production", "--minify",
+                   "--themesDir", str(self.theme.parent), "--theme", self.theme.name)
         css_files = list((self.root / "public").glob("style*.css"))
         self.assertEqual(len(css_files), 1)
+        self.assertEqual((self.root / "public/style.css.map").is_file(), development)
         self.assertIn(".synthetic", css_files[0].read_text())
         self.assertIn("#123", css_files[0].read_text())
+        if responsive:
+            self.assertIn("vw", css_files[0].read_text())
+            self.assertIn("@media", css_files[0].read_text())
+        else:
+            self.assertIn("font-size:2.5rem", css_files[0].read_text())
+            self.assertNotIn("vw", css_files[0].read_text())
         html = (self.root / "public/index.html").read_text()
         self.assertIn(css_files[0].name, html)
 
@@ -207,6 +218,9 @@ class CssTests(HugoCase):
 
     def test_css_development(self):
         self.css_build(True)
+
+    def test_responsive_fonts_opt_in(self):
+        self.css_build(False, responsive=True)
 
 
 class RepositoriesTests(HugoCase):
@@ -239,7 +253,7 @@ class RepositoriesTests(HugoCase):
             endpoint_pattern = re.escape(endpoint)
             self.write("config.toml", f'''baseURL = "https://example.invalid/"
 timeout = "1s"
-disableKinds = ["RSS", "sitemap", "taxonomy", "term", "taxonomyTerm"]
+disableKinds = ["rss", "sitemap", "taxonomy", "term"]
 [params.repositories]
 user = "synthetic"
 {params}
@@ -292,9 +306,12 @@ class SmokeTests(HugoCase):
     def test_full_theme(self):
         self.write("config.toml", '''baseURL = "https://example.invalid/"
 title = "Synthetic Syna"
-disableKinds = ["RSS", "sitemap", "taxonomy", "term", "taxonomyTerm"]
+locale = "de-DE"
+disableKinds = ["rss", "sitemap", "taxonomy", "term"]
 [outputs]
 home = ["HTML", "JSON"]
+[params.colors]
+primary = "#1a2b3c"
 ''')
         self.write("content/_index.md", "+++\ntitle = 'Synthetic home'\n+++\n")
         self.write("content/_index/index.md", "+++\nheadless = true\n+++\n")
@@ -312,6 +329,8 @@ home = ["HTML", "JSON"]
         home = (self.root / "public/index.html").read_text()
         page = (self.root / "public/page/index.html").read_text()
         section = (self.root / "public/section/index.html").read_text()
+        self.assertRegex(home, r'<html\s+lang=["\']?de-DE(?:["\']|\s|>)')
+        self.assertRegex(page, r'<html\s+lang=["\']?de-DE(?:["\']|\s|>)')
         self.assertIn("SYNTHETIC_HOME_MARKER", home)
         self.assertIn("SYNTHETIC_PAGE_MARKER", page)
         self.assertIn("SYNTHETIC_SECTION_MARKER", section)
@@ -323,7 +342,9 @@ home = ["HTML", "JSON"]
         self.assertIn("SYNTHETIC_GLOBAL_HERO_MARKER", not_found)
         self.assertIn("SYNTHETIC_NOT_FOUND_MARKER", not_found)
         self.assertNotIn("SYNTHETIC_NOT_FOUND_MARKER", home)
-        self.assertGreater(len(list((self.root / "public").glob("style*.css"))), 0)
+        css_files = list((self.root / "public").glob("style*.css"))
+        self.assertEqual(len(css_files), 1)
+        self.assertIn("#1a2b3c", css_files[0].read_text())
 
 
 if __name__ == "__main__":

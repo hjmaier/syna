@@ -1,3 +1,6 @@
+@use "bootstrap/reboot";
+@use "bootstrap/variables";
+
 .search-results-container {
   position: absolute;
   right: 0;
@@ -29,7 +32,7 @@
 
     div {
       &:hover {
-        background-color: rgba($primary, 0.2);
+        background-color: rgba(variables.$primary, 0.2);
 
         h5 {
           text-decoration: underline !important;

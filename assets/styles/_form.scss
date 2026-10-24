@@ -1,3 +1,5 @@
+@use "bootstrap/variables";
+
 /**
  * Some of the code below is the default styles from jquery-form-validator by Victor Jonsson <victorjonsson.se>
  */
@@ -129,7 +131,7 @@ div.form-error ul li {
 
 form {
   .should-fade {
-    transition: $transition-base;
+    transition: variables.$transition-base;
     opacity: 1;
   }
 
@@ -138,7 +140,7 @@ form {
   }
 
   #generic-success {
-    transition: $transition-base;
+    transition: variables.$transition-base;
     position: absolute;
     left: -.25rem;
     top: -1rem;

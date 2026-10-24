@@ -1,16 +1,21 @@
+@use "sass:color";
+@use "bootstrap/mixins/breakpoints";
+@use "bootstrap/mixins/hover";
+@use "bootstrap/variables";
+
 :root {
   --header-height: 0px;
 }
 
 .nav-link {
-  color: $navbar-light-color;
+  color: variables.$navbar-light-color;
 
-  @include hover-focus {
-    color: $navbar-light-hover-color;
+  @include hover.hover-focus {
+    color: variables.$navbar-light-hover-color;
   }
 
   &.disabled {
-    color: $navbar-light-disabled-color;
+    color: variables.$navbar-light-disabled-color;
   }
 }
 
@@ -18,10 +23,10 @@
   &.bg-primary,
   .bg-primary {
     a:not(.nav-link):not(.ignore-color-change) {
-      color: $light;
+      color: variables.$light;
 
-      @include hover {
-        color: darken($light, 15%);
+      @include hover.hover {
+        color: color.adjust(variables.$light, $lightness: -15%);
       }
     }
   }
@@ -29,14 +34,14 @@
   &.bg-dark,
   .bg-dark {
     .nav-link {
-      color: $navbar-dark-color;
+      color: variables.$navbar-dark-color;
 
-      @include hover-focus {
-        color: $navbar-dark-hover-color;
+      @include hover.hover-focus {
+        color: variables.$navbar-dark-hover-color;
       }
 
       &.disabled {
-        color: $navbar-dark-disabled-color;
+        color: variables.$navbar-dark-disabled-color;
       }
     }
   }
@@ -46,8 +51,8 @@
   &.bg-dark,
   .bg-dark {
     a:not(.ignore-color-change) {
-      @include hover {
-        color: darken($light, 15%);
+      @include hover.hover {
+        color: color.adjust(variables.$light, $lightness: -15%);
       }
     }
   }
@@ -114,7 +119,7 @@ article .content {
     display: grid;
     grid-auto-rows: 1fr auto 1fr;
 
-    @include media-breakpoint-down('sm') {
+    @include breakpoints.media-breakpoint-down('sm') {
       grid-auto-rows: auto;
     }
   
@@ -133,8 +138,8 @@ section .bg {
     &-#{$bg} {
       code,
       pre {
-        background-color: $light;
-        color: $dark;
+        background-color: variables.$light;
+        color: variables.$dark;
       }
 
       p code {
@@ -143,12 +148,12 @@ section .bg {
     }
   }
 
-  @each $bg in white, primary, success, info, warning, danger, light {
+  @each $bg in "white", primary, success, info, warning, danger, light {
     &-#{$bg} {
       code,
       pre {
-        background-color: $dark;
-        color: $light;
+        background-color: variables.$dark;
+        color: variables.$light;
 
         code {
           background-color: inherit;
@@ -186,7 +191,7 @@ section .bg {
 
   .badge {
     margin-right: 8px;
-    transition: $transition-base;
+    transition: variables.$transition-base;
 
     [class*="fa-"] {
       margin-right: 2px;
