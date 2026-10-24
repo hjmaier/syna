@@ -117,8 +117,13 @@
           </div>
         </div>
       {{- end }}
-      {{- if gt (len .Site.Languages) 1 -}}
-        {{- range .Site.Languages }}
+      {{- $languages := slice -}}
+      {{- range hugo.Sites -}}
+        {{- $languages = $languages | append .Language.Lang -}}
+      {{- end -}}
+      {{- $languages = uniq $languages -}}
+      {{- if gt (len $languages) 1 -}}
+        {{- range $languages }}
           <a class="btn btn-secondary p-1 m-1" href="{{ delimit (slice "/" .) "" }}" role="button">
             {{ . }}
           </a>

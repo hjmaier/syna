@@ -1,4 +1,4 @@
-<html lang="{{ .Site.LanguageCode | default (printf "en-us") }}">
+<html lang="{{ .Site.Language.Locale }}">
   {{- $.Scratch.Set "layout_info" (dict "is_404" true "root" $ "real_page" . "page" . "page_scratch" $.Scratch) -}}
   {{- partial "helpers/fragments.html" (dict "page_scratch" $.Scratch) -}}
   {{- partial "head.html" . }}

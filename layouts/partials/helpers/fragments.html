@@ -77,7 +77,7 @@
 {{- $is_404 := $layout_info.is_404 -}}
 
 {{ $default_lang := $real_page.Site.Params.DefaultContentLanguage | default $real_page.Site.Language.Lang }}
-{{ $default_site := index (where $real_page.Sites "Language.Lang" "eq" $default_lang) 0 }}
+{{ $default_site := index (where hugo.Sites "Language.Lang" "eq" $default_lang) 0 }}
 {{ $lang := $real_page.Site.Language.Lang }}
 
 {{- $page_scratch.Set "fragment_directories" (slice) -}}
